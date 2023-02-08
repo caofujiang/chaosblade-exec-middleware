@@ -18,6 +18,7 @@ package main
 
 import (
 	"github.com/chaosblade-io/chaosblade-exec-middleware/exec/nginx"
+	"github.com/chaosblade-io/chaosblade-exec-middleware/exec/redis"
 	"github.com/chaosblade-io/chaosblade-exec-os/exec/model"
 	"log"
 	"os"
@@ -41,6 +42,7 @@ func main() {
 func getModels() *spec.Models {
 	modelCommandSpecs := []spec.ExpModelCommandSpec{
 		nginx.NewNginxCommandSpec(),
+		redis.NewRedisCommandSpec(),
 	}
 	specModels := make([]*spec.Models, 0)
 	for _, modeSpec := range modelCommandSpecs {
