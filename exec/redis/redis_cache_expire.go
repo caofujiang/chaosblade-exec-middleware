@@ -43,25 +43,34 @@ func NewCacheExpireActionSpec() spec.ExpActionCommandSpec {
 				},
 				&spec.ExpFlag{
 					Name: "password",
-					Desc: "The password of server",
+					Desc: "The password of redis server",
 				},
 				&spec.ExpFlag{
 					Name: "key",
-					Desc: "The key to be set a expiration, default expire all keys",
+					Desc: "The key to be set an expiry, default expire all keys",
 				},
 				&spec.ExpFlag{
-					Name: "expiration",
-					Desc: `The expiration of the key. A expiration string should be able to be converted to a time duration, such as "5s" or "30m"`,
+					Name: "expiry",
+					Desc: `The expiry of the key. An expiry string should be able to be converted to a time duration, such as "5s" or "30m"`,
 				},
 				&spec.ExpFlag{
 					Name: "option",
-					Desc: "The additional options of expiration, only NX, XX, GT, LT supported",
+					Desc: `
+The additional options of expiry, only NX, XX, GT, LT supported:
+NX -- Set expiry only when the key has no expiry
+XX -- Set expiry only when the key has an existing expiry
+GT -- Set expiry only when the new expiry is greater than current one
+LT -- Set expiry only when the new expiry is less than current one
+`,
 				},
 			},
 			ActionExecutor: &CacheExpireExecutor{},
 			ActionExample: `
-# expire all keys
-blade create redis cache-expire --addr 127.0.0.1:6379 --option GT --expiration 1m
+# expire a key
+blade create redis cache-expire --addr 192.168.56.101:6379 --password 123456 --key test1 --expiry 1m
+
+# expire all keys only when the new expiry is greater than current one
+blade create redis cache-expire --addr 192.168.56.101:6379 --password 123456 --option GT --expiry 1m
 `,
 			ActionPrograms:   []string{CacheExpireBin},
 			ActionCategories: []string{category.SystemTime},
@@ -85,7 +94,7 @@ func (k *CacheExpireActionCommandSpec) LongDesc() string {
 	if k.ActionLongDesc != "" {
 		return k.ActionLongDesc
 	}
-	return "Expire keys in Redis"
+	return "Expire the key in Redis"
 }
 
 func (*CacheExpireActionCommandSpec) Categories() []string {
@@ -104,20 +113,22 @@ func (cee *CacheExpireExecutor) Exec(uid string, ctx context.Context, model *spe
 	addrStr := model.ActionFlags["addr"]
 	passwordStr := model.ActionFlags["password"]
 	keyStr := model.ActionFlags["key"]
-	expirationStr := model.ActionFlags["expiration"]
+	expiryStr := model.ActionFlags["expiry"]
 	optionStr := model.ActionFlags["option"]
 
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
 		Password: passwordStr,
 	})
+
 	_, err := cli.Ping(cli.Context()).Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis ping error: "+err.Error())
+		errMsg := "redis ping error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
-	return cee.start(ctx, cli, keyStr, expirationStr, optionStr)
+	return cee.start(ctx, cli, keyStr, expiryStr, optionStr)
 }
 
 func (cee *CacheExpireExecutor) SetChannel(channel spec.Channel) {
@@ -127,53 +138,63 @@ func (cee *CacheExpireExecutor) SetChannel(channel spec.Channel) {
 func ExpireFunc(cli *redis.Client, key string, expiration time.Duration, option string) *redis.BoolCmd {
 	switch option {
 	case OPTIONNX:
+		// NX -- Set expiry only when the key has no expiry
 		return cli.ExpireNX(cli.Context(), key, expiration)
 	case OPTIONXX:
+		// XX -- Set expiry only when the key has an existing expiry
 		return cli.ExpireXX(cli.Context(), key, expiration)
 	case OPTIONGT:
+		// GT -- Set expiry only when the new expiry is greater than current one
 		return cli.ExpireGT(cli.Context(), key, expiration)
 	case OPTIONLT:
+		// LT -- Set expiry only when the new expiry is less than current one
 		return cli.ExpireLT(cli.Context(), key, expiration)
 	default:
 		return cli.Expire(cli.Context(), key, expiration)
 	}
 }
 
-func (cee *CacheExpireExecutor) start(ctx context.Context, cli *redis.Client, keyStr string, expirationStr string, optionStr string) *spec.Response {
-	expiration, err := time.ParseDuration(expirationStr)
+func (cee *CacheExpireExecutor) start(ctx context.Context, cli *redis.Client, keyStr string, expiryStr string, optionStr string) *spec.Response {
+	expiry, err := time.ParseDuration(expiryStr)
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "parse duration error: "+err.Error())
+		errMsg := "parse duration error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	if keyStr == "" {
 		// Get all keys from the server
 		allKeys, err := cli.Keys(cli.Context(), "*").Result()
 		if err != nil {
-			log.Errorf(ctx, err.Error())
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis get all keys error: "+err.Error())
+			errMsg := "redis get all keys error: " + err.Error()
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 
 		for _, key := range allKeys {
-			result, err := ExpireFunc(cli, key, expiration, optionStr).Result()
+			result, err := ExpireFunc(cli, key, expiry, optionStr).Result()
 			if err != nil {
-				log.Errorf(ctx, err.Error())
-				return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis expire key error: "+err.Error())
+				errMsg := "redis expire key error: " + err.Error()
+				log.Errorf(ctx, errMsg)
+				return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 			}
 			if !result {
-				log.Errorf(ctx, "redis expire key failed")
-				return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis expire key failed")
+				errMsg := "redis expire key failed"
+				log.Errorf(ctx, errMsg)
+				return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 			}
 		}
 	} else {
-		result, err := ExpireFunc(cli, keyStr, expiration, optionStr).Result()
+		result, err := ExpireFunc(cli, keyStr, expiry, optionStr).Result()
 		if err != nil {
-			log.Errorf(ctx, err.Error())
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis expire key error: "+err.Error())
+			errMsg := "redis expire key error: " + err.Error()
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 		if !result {
-			log.Errorf(ctx, "redis expire key failed")
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis expire key failed")
+			errMsg := "redis expire key failed"
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 	}
 

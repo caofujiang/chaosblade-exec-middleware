@@ -51,8 +51,8 @@ func NewCachePenetrateActionSpec() spec.ExpActionCommandSpec {
 			},
 			ActionExecutor: &CachePenetrateExecutor{},
 			ActionExample: `
-# 100000 request
-blade create redis cache-penetrate --addr 127.0.0.1:6379 --password 123456 --request-num 100000
+# 10000 request
+blade create redis cache-penetrate --addr 192.168.56.101:6379 --password 123456 --request-num 10000
 `,
 			ActionPrograms:   []string{CachePenetrateBin},
 			ActionCategories: []string{category.SystemTime},
@@ -102,8 +102,9 @@ func (cpe *CachePenetrateExecutor) Exec(uid string, ctx context.Context, model *
 	})
 	_, err := cli.Ping(cli.Context()).Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis ping error: "+err.Error())
+		errMsg := "redis ping error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	return cpe.start(ctx, cli, requestNumStr)
@@ -117,18 +118,20 @@ func (cpe *CachePenetrateExecutor) SetChannel(channel spec.Channel) {
 func (cpe *CachePenetrateExecutor) start(ctx context.Context, cli *redis.Client, requestNumStr string) *spec.Response {
 	requestNum, err := strconv.Atoi(requestNumStr)
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "string to int error: "+err.Error())
+		errMsg := "string to int error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	pipe := cli.Pipeline()
 	for i := 0; i < requestNum; i++ {
-		pipe.Get(cli.Context(), "CHAOS_BLADE_cbF3bNw9klHv")
+		pipe.Get(cli.Context(), "CM_Chaos_cbF3bNw9klHv")
 	}
 	_, err = pipe.Exec(cli.Context())
 	if err != redis.Nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis pipe exec error: "+err.Error())
+		errMsg := "redis pipe exec error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	return nil

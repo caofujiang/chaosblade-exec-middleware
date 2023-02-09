@@ -57,7 +57,7 @@ func NewCacheLimitActionSpec() spec.ExpActionCommandSpec {
 			},
 			ActionExecutor: &CacheLimitExecutor{},
 			ActionExample: `
-# set maxmemory
+# set maxmemory to 256M
 blade create redis cache-limit --addr 192.168.56.101:6379 --password 123456  --size 256M
 `,
 			ActionPrograms:   []string{CacheLimitBin},
@@ -82,7 +82,7 @@ func (k *CacheLimitActionCommandSpec) LongDesc() string {
 	if k.ActionLongDesc != "" {
 		return k.ActionLongDesc
 	}
-	return "Set maxmemory of Redis"
+	return "Set the maxmemory of Redis"
 }
 
 func (*CacheLimitActionCommandSpec) Categories() []string {
@@ -109,17 +109,19 @@ func (cle *CacheLimitExecutor) Exec(uid string, ctx context.Context, model *spec
 	})
 	_, err := cli.Ping(cli.Context()).Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis ping error: "+err.Error())
+		errMsg := "redis ping error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
-	// `maxmemory` is an interface listwith content similar to `[maxmemory 1024]`
+	// "maxmemory" is an interface that lists with content similar to "[maxmemory 1024]"
 	maxmemory, err := cli.ConfigGet(cli.Context(), "maxmemory").Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis get max memory error: "+err.Error())
+		errMsg := "redis get max memory error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
-	// Get the value of maxmemory
+	// get the value of maxmemory
 	originCacheSize := fmt.Sprint(maxmemory[1])
 
 	if _, ok := spec.IsDestroy(ctx); ok {
@@ -136,13 +138,14 @@ func (cle *CacheLimitExecutor) SetChannel(channel spec.Channel) {
 func (cle *CacheLimitExecutor) stop(ctx context.Context, cli *redis.Client, originCacheSize string) *spec.Response {
 	result, err := cli.ConfigSet(cli.Context(), "maxmemory", originCacheSize).Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis set max memory error: "+err.Error())
+		errMsg := "redis set max memory error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 	if result != STATUSOK {
-		statusMsg := fmt.Sprintf("redis command status is %s", result)
-		log.Errorf(ctx, statusMsg)
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis set max memory error: "+statusMsg)
+		errMsg := fmt.Sprintf("redis set max memory error: redis command status is %s", result)
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	return nil
@@ -153,13 +156,15 @@ func (cle *CacheLimitExecutor) start(ctx context.Context, cli *redis.Client, per
 	if percentStr != "" {
 		percentage, err := strconv.ParseFloat(percentStr[0:len(percentStr)-1], 64)
 		if err != nil {
-			log.Errorf(ctx, err.Error())
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "str parse float error: "+err.Error())
+			errMsg := "str parse float error: " + err.Error()
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 		originCacheSize, err := strconv.ParseFloat(originCacheSize, 64)
 		if err != nil {
-			log.Errorf(ctx, err.Error())
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "str parse float error: "+err.Error())
+			errMsg := "str parse float error: " + err.Error()
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 		cacheSize = fmt.Sprint(int(math.Floor(originCacheSize / 100.0 * percentage)))
 	} else {
@@ -168,13 +173,14 @@ func (cle *CacheLimitExecutor) start(ctx context.Context, cli *redis.Client, per
 
 	result, err := cli.ConfigSet(cli.Context(), "maxmemory", cacheSize).Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis set max memory error: "+err.Error())
+		errMsg := "redis set max memory error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 	if result != STATUSOK {
-		statusMsg := fmt.Sprintf("redis command status is %s", result)
-		log.Errorf(ctx, statusMsg)
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis set max memory error: "+statusMsg)
+		errMsg := fmt.Sprintf("redis set max memory error: redis command status is %s", result)
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	return nil

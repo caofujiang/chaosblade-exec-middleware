@@ -67,7 +67,7 @@ func NewSentinelStopActionSpec() spec.ExpActionCommandSpec {
 			ActionExecutor: &SentinelStopExecutor{},
 			ActionExample: `
 # stop sentinel: 127.0.0.1:26379
-./blade create redis sentinel-stop -addr 127.0.0.1:26379 --conf /home/redis-test/sentinel-26379.conf
+./blade create redis sentinel-stop --addr 127.0.0.1:26379 --conf /home/redis-test/sentinel-26379.conf
 `,
 			ActionPrograms:   []string{SentinelStopBin},
 			ActionCategories: []string{category.SystemTime},
@@ -125,8 +125,9 @@ func (sse *SentinelStopExecutor) Exec(uid string, ctx context.Context, model *sp
 	})
 	_, err := cli.Ping(cli.Context()).Result()
 	if err != nil {
-		log.Errorf(ctx, err.Error())
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis ping error: "+err.Error())
+		errMsg := "redis ping error: " + err.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
 	if flushConfigStr != "" {
@@ -136,13 +137,14 @@ func (sse *SentinelStopExecutor) Exec(uid string, ctx context.Context, model *sp
 		})
 		result, err := sentinelCli.FlushConfig(sentinelCli.Context()).Result()
 		if err != nil {
-			log.Errorf(ctx, err.Error())
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "sentinel flush config error: "+err.Error())
+			errMsg := "sentinel flush config error: " + err.Error()
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 		if result != STATUSOK {
-			statusMsg := fmt.Sprintf("redis command status is %s", result)
-			log.Errorf(ctx, statusMsg)
-			return spec.ResponseFailWithFlags(spec.ActionNotSupport, "sentinel flush config error: "+statusMsg)
+			errMsg := fmt.Sprintf("sentinel flush config error: redis command status is %s", result)
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
 	}
 
@@ -171,8 +173,9 @@ func (sse *SentinelStopExecutor) start(ctx context.Context, cli *redis.Client) *
 	// If cli.Shutdown() runs successfully, the result will be nil and the error will be "connection refused"
 	result, _ := cli.Shutdown(cli.Context()).Result()
 	if result != "" {
-		log.Errorf(ctx, result)
-		return spec.ResponseFailWithFlags(spec.ActionNotSupport, "redis shutdown error: "+result)
+		errMsg := "redis shutdown error: " + result
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 	return nil
 }
