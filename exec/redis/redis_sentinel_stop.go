@@ -118,6 +118,10 @@ func (sse *SentinelStopExecutor) Exec(uid string, ctx context.Context, model *sp
 	redisPathStr := model.ActionFlags["redis-path"]
 	confStr := model.ActionFlags["conf"]
 
+	if _, ok := spec.IsDestroy(ctx); ok {
+		return sse.stop(ctx, redisPathStr, confStr)
+	}
+
 	if addrStr == "" {
 		log.Errorf(ctx, "addr is nil")
 		return spec.ResponseFailWithFlags(spec.ParameterLess, "addr")
@@ -150,10 +154,6 @@ func (sse *SentinelStopExecutor) Exec(uid string, ctx context.Context, model *sp
 			log.Errorf(ctx, errMsg)
 			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 		}
-	}
-
-	if _, ok := spec.IsDestroy(ctx); ok {
-		return sse.stop(ctx, redisPathStr, confStr)
 	}
 
 	return sse.start(ctx, cli)
