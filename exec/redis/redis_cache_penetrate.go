@@ -65,7 +65,7 @@ func (*CachePenetrateActionCommandSpec) Name() string {
 }
 
 func (*CachePenetrateActionCommandSpec) Aliases() []string {
-	return []string{"cl"}
+	return []string{"cp"}
 }
 
 func (*CachePenetrateActionCommandSpec) ShortDesc() string {

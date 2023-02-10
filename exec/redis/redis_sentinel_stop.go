@@ -66,8 +66,12 @@ func NewSentinelStopActionSpec() spec.ExpActionCommandSpec {
 			},
 			ActionExecutor: &SentinelStopExecutor{},
 			ActionExample: `
-# stop sentinel: 127.0.0.1:26379
+# Stop local sentinel: 127.0.0.1:26379
 ./blade create redis sentinel-stop --addr 127.0.0.1:26379 --conf /home/redis-test/sentinel-26379.conf
+
+# Stop remote sentinel: 192.168.56.102:26379
+./blade create redis sentinel-stop --addr 192.168.56.102:26379
+ --conf /home/redis-test/sentinel-26379.conf --channel ssh --ssh-host 192.168.56.102  --ssh-user root  --install-path /root/chaosblade-1.7.1
 `,
 			ActionPrograms:   []string{SentinelStopBin},
 			ActionCategories: []string{category.SystemTime},

@@ -59,8 +59,12 @@ func NewSentinelRestartActionSpec() spec.ExpActionCommandSpec {
 			},
 			ActionExecutor: &SentinelRestartExecutor{},
 			ActionExample: `
-# Restart sentinel
+# Restart local sentinel: 127.0.0.1:26379
 blade create redis sentinel-restart --addr 127.0.0.1:26379 --conf /home/redis-test/sentinel-26379.conf
+
+# Restart remote sentinel: 192.168.56.102:26379
+./blade create redis sentinel-restart --addr 192.168.56.102:26379
+ --conf /home/redis-test/sentinel-26379.conf --channel ssh --ssh-host 192.168.56.102  --ssh-user root  --install-path /root/chaosblade-1.7.1
 `,
 			ActionPrograms:   []string{SentinelRestartBin},
 			ActionCategories: []string{category.SystemTime},
@@ -73,7 +77,7 @@ func (*SentinelRestartActionCommandSpec) Name() string {
 }
 
 func (*SentinelRestartActionCommandSpec) Aliases() []string {
-	return []string{"cl"}
+	return []string{"sr"}
 }
 
 func (*SentinelRestartActionCommandSpec) ShortDesc() string {

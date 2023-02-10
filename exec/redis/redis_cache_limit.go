@@ -75,7 +75,7 @@ func (*CacheLimitActionCommandSpec) Aliases() []string {
 }
 
 func (*CacheLimitActionCommandSpec) ShortDesc() string {
-	return "Cache Limit"
+	return "Cache Memory Limit"
 }
 
 func (k *CacheLimitActionCommandSpec) LongDesc() string {
