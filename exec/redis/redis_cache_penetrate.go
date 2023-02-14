@@ -96,6 +96,10 @@ func (cpe *CachePenetrateExecutor) Exec(uid string, ctx context.Context, model *
 	passwordStr := model.ActionFlags["password"]
 	requestNumStr := model.ActionFlags["request-num"]
 
+	if _, ok := spec.IsDestroy(ctx); ok {
+		return spec.ReturnSuccess("destroy cache penetrate success")
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
 		Password: passwordStr,
@@ -134,5 +138,5 @@ func (cpe *CachePenetrateExecutor) start(ctx context.Context, cli *redis.Client,
 		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
-	return nil
+	return spec.ReturnSuccess("cache penetrate success")
 }

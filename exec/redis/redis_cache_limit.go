@@ -114,6 +114,17 @@ func (cle *CacheLimitExecutor) Exec(uid string, ctx context.Context, model *spec
 		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
+	if _, ok := spec.IsDestroy(ctx); ok {
+		// get the value of origin maxmemory
+		originCacheSize, err := cli.Get(cli.Context(), "origin_maxmemory_"+uid).Result()
+		if err != nil {
+			errMsg := "redis get origin max memory error: " + err.Error()
+			log.Errorf(ctx, errMsg)
+			return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
+		}
+		return cle.stop(ctx, cli, originCacheSize)
+	}
+
 	// "maxmemory" is an interface that lists with content similar to "[maxmemory 1024]"
 	maxmemory, err := cli.ConfigGet(cli.Context(), "maxmemory").Result()
 	if err != nil {
@@ -123,12 +134,7 @@ func (cle *CacheLimitExecutor) Exec(uid string, ctx context.Context, model *spec
 	}
 	// get the value of maxmemory
 	originCacheSize := fmt.Sprint(maxmemory[1])
-
-	if _, ok := spec.IsDestroy(ctx); ok {
-		return cle.stop(ctx, cli, originCacheSize)
-	}
-
-	return cle.start(ctx, cli, percentStr, originCacheSize, sizeStr)
+	return cle.start(ctx, uid, cli, percentStr, originCacheSize, sizeStr)
 }
 
 func (cle *CacheLimitExecutor) SetChannel(channel spec.Channel) {
@@ -148,10 +154,10 @@ func (cle *CacheLimitExecutor) stop(ctx context.Context, cli *redis.Client, orig
 		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
-	return nil
+	return spec.ReturnSuccess("cache memory limit restored")
 }
 
-func (cle *CacheLimitExecutor) start(ctx context.Context, cli *redis.Client, percentStr string, originCacheSize string, sizeStr string) *spec.Response {
+func (cle *CacheLimitExecutor) start(ctx context.Context, uid string, cli *redis.Client, percentStr string, originCacheSize string, sizeStr string) *spec.Response {
 	var cacheSize string
 	if percentStr != "" {
 		percentage, err := strconv.ParseFloat(percentStr[0:len(percentStr)-1], 64)
@@ -183,5 +189,12 @@ func (cle *CacheLimitExecutor) start(ctx context.Context, cli *redis.Client, per
 		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
 
-	return nil
+	originErr := cli.Set(cli.Context(), "origin_maxmemory_"+uid, originCacheSize, 0).Err()
+	if originErr != nil {
+		errMsg := "redis set origin max memory error: " + originErr.Error()
+		log.Errorf(ctx, errMsg)
+		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
+	}
+
+	return spec.ReturnSuccess("cache memory limit changed")
 }

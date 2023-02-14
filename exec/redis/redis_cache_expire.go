@@ -116,6 +116,10 @@ func (cee *CacheExpireExecutor) Exec(uid string, ctx context.Context, model *spe
 	expiryStr := model.ActionFlags["expiry"]
 	optionStr := model.ActionFlags["option"]
 
+	if _, ok := spec.IsDestroy(ctx); ok {
+		return spec.ReturnSuccess("destroy set expiry success")
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
 		Password: passwordStr,
@@ -198,5 +202,5 @@ func (cee *CacheExpireExecutor) start(ctx context.Context, cli *redis.Client, ke
 		}
 	}
 
-	return nil
+	return spec.ReturnSuccess("set expiry success")
 }

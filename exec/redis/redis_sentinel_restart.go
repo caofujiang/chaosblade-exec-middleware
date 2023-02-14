@@ -110,6 +110,10 @@ func (sre *SentinelRestartExecutor) Exec(uid string, ctx context.Context, model 
 	redisPathStr := model.ActionFlags["redis-path"]
 	confStr := model.ActionFlags["conf"]
 
+	if _, ok := spec.IsDestroy(ctx); ok {
+		return spec.ReturnSuccess("destroy sentinel restart success")
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
 		Password: passwordStr,

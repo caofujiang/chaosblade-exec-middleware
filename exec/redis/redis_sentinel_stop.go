@@ -181,5 +181,5 @@ func (sse *SentinelStopExecutor) start(ctx context.Context, cli *redis.Client) *
 		log.Errorf(ctx, errMsg)
 		return spec.ResponseFailWithFlags(spec.ActionNotSupport, errMsg)
 	}
-	return nil
+	return spec.ReturnSuccess("sentinel stop success")
 }
