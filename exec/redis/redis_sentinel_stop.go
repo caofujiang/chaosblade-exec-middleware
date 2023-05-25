@@ -25,14 +25,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-const (
-	SentinelStopBin = "chaos_sentinelStop"
-	STATUSOK        = "OK"
-	OPTIONNX        = "NX"
-	OPTIONXX        = "XX"
-	OPTIONGT        = "GT"
-	OPTIONLT        = "LT"
-)
+const SentinelStopBin = "chaos_sentinelStop"
 
 type SentinelStopActionCommandSpec struct {
 	spec.BaseExpActionCommandSpec

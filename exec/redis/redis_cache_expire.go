@@ -26,7 +26,14 @@ import (
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 )
 
-const CacheExpireBin = "chaos_cacheExpire"
+const (
+	CacheExpireBin = "chaos_cacheExpire"
+	STATUSOK       = "OK"
+	OPTIONNX       = "NX"
+	OPTIONXX       = "XX"
+	OPTIONGT       = "GT"
+	OPTIONLT       = "LT"
+)
 
 type CacheExpireActionCommandSpec struct {
 	spec.BaseExpActionCommandSpec
