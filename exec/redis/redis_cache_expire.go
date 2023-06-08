@@ -18,7 +18,9 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/howeyc/gopass"
 	"time"
 
 	"github.com/chaosblade-io/chaosblade-exec-os/exec/category"
@@ -47,10 +49,6 @@ func NewCacheExpireActionSpec() spec.ExpActionCommandSpec {
 				&spec.ExpFlag{
 					Name: "addr",
 					Desc: "The address of redis server",
-				},
-				&spec.ExpFlag{
-					Name: "password",
-					Desc: "The password of redis server",
 				},
 				&spec.ExpFlag{
 					Name: "key",
@@ -118,7 +116,6 @@ func (cee *CacheExpireExecutor) Name() string {
 
 func (cee *CacheExpireExecutor) Exec(uid string, ctx context.Context, model *spec.ExpModel) *spec.Response {
 	addrStr := model.ActionFlags["addr"]
-	passwordStr := model.ActionFlags["password"]
 	keyStr := model.ActionFlags["key"]
 	expiryStr := model.ActionFlags["expiry"]
 	optionStr := model.ActionFlags["option"]
@@ -127,12 +124,19 @@ func (cee *CacheExpireExecutor) Exec(uid string, ctx context.Context, model *spe
 		return spec.ReturnSuccess("destroy set expiry success")
 	}
 
+	fmt.Print("Please enter the password of redis server:")
+	passwordStr, err := gopass.GetPasswd()
+	if err != nil {
+		log.Errorf(ctx, "password is illegal, err: %s", err.Error())
+		return spec.ResponseFailWithFlags(spec.ParameterIllegal, "password", "****", err.Error())
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
-		Password: passwordStr,
+		Password: string(passwordStr),
 	})
 
-	_, err := cli.Ping(cli.Context()).Result()
+	_, err = cli.Ping(cli.Context()).Result()
 	if err != nil {
 		errMsg := "redis ping error: " + err.Error()
 		log.Errorf(ctx, errMsg)

@@ -18,10 +18,12 @@ package redis
 
 import (
 	"context"
+	"fmt"
 	"github.com/chaosblade-io/chaosblade-exec-os/exec/category"
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/go-redis/redis/v8"
+	"github.com/howeyc/gopass"
 	"strconv"
 )
 
@@ -39,10 +41,6 @@ func NewCachePenetrateActionSpec() spec.ExpActionCommandSpec {
 				&spec.ExpFlag{
 					Name: "addr",
 					Desc: "The address of redis server",
-				},
-				&spec.ExpFlag{
-					Name: "password",
-					Desc: "The password of server",
 				},
 				&spec.ExpFlag{
 					Name: "request-num",
@@ -93,18 +91,24 @@ func (cpe *CachePenetrateExecutor) Name() string {
 
 func (cpe *CachePenetrateExecutor) Exec(uid string, ctx context.Context, model *spec.ExpModel) *spec.Response {
 	addrStr := model.ActionFlags["addr"]
-	passwordStr := model.ActionFlags["password"]
 	requestNumStr := model.ActionFlags["request-num"]
 
 	if _, ok := spec.IsDestroy(ctx); ok {
 		return spec.ReturnSuccess("destroy cache penetrate success")
 	}
 
+	fmt.Print("Please enter the password of redis server:")
+	passwordStr, err := gopass.GetPasswd()
+	if err != nil {
+		log.Errorf(ctx, "password is illegal, err: %s", err.Error())
+		return spec.ResponseFailWithFlags(spec.ParameterIllegal, "password", "****", err.Error())
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
-		Password: passwordStr,
+		Password: string(passwordStr),
 	})
-	_, err := cli.Ping(cli.Context()).Result()
+	_, err = cli.Ping(cli.Context()).Result()
 	if err != nil {
 		errMsg := "redis ping error: " + err.Error()
 		log.Errorf(ctx, errMsg)

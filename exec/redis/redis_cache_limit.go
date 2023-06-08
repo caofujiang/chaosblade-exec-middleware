@@ -23,6 +23,7 @@ import (
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/go-redis/redis/v8"
+	"github.com/howeyc/gopass"
 	"math"
 	"strconv"
 )
@@ -41,10 +42,6 @@ func NewCacheLimitActionSpec() spec.ExpActionCommandSpec {
 				&spec.ExpFlag{
 					Name: "addr",
 					Desc: "The address of redis server",
-				},
-				&spec.ExpFlag{
-					Name: "password",
-					Desc: "The password of server",
 				},
 				&spec.ExpFlag{
 					Name: "size",
@@ -99,13 +96,23 @@ func (cle *CacheLimitExecutor) Name() string {
 
 func (cle *CacheLimitExecutor) Exec(uid string, ctx context.Context, model *spec.ExpModel) *spec.Response {
 	addrStr := model.ActionFlags["addr"]
-	passwordStr := model.ActionFlags["password"]
 	sizeStr := model.ActionFlags["size"]
 	percentStr := model.ActionFlags["percent"]
 
+	var passwordStr []byte
+	if _, ok := spec.IsDestroy(ctx); !ok {
+		fmt.Print("Please enter the password of redis server:")
+		var err error
+		passwordStr, err = gopass.GetPasswd()
+		if err != nil {
+			log.Errorf(ctx, "password is illegal, err: %s", err.Error())
+			return spec.ResponseFailWithFlags(spec.ParameterIllegal, "password", "****", err.Error())
+		}
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
-		Password: passwordStr,
+		Password: string(passwordStr),
 	})
 	_, err := cli.Ping(cli.Context()).Result()
 	if err != nil {

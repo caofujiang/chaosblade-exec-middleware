@@ -23,6 +23,7 @@ import (
 	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/go-redis/redis/v8"
+	"github.com/howeyc/gopass"
 )
 
 const SentinelStopBin = "chaos_sentinelStop"
@@ -39,10 +40,6 @@ func NewSentinelStopActionSpec() spec.ExpActionCommandSpec {
 				&spec.ExpFlag{
 					Name: "addr",
 					Desc: "The address of redis server",
-				},
-				&spec.ExpFlag{
-					Name: "password",
-					Desc: "The password of server",
 				},
 				&spec.ExpFlag{
 					Name: "conf",
@@ -106,7 +103,6 @@ func (sse *SentinelStopExecutor) Name() string {
 func (sse *SentinelStopExecutor) Exec(uid string, ctx context.Context, model *spec.ExpModel) *spec.Response {
 
 	addrStr := model.ActionFlags["addr"]
-	passwordStr := model.ActionFlags["password"]
 	flushConfigStr := model.ActionFlags["flush-config"]
 	redisPathStr := model.ActionFlags["redis-path"]
 	confStr := model.ActionFlags["conf"]
@@ -120,9 +116,20 @@ func (sse *SentinelStopExecutor) Exec(uid string, ctx context.Context, model *sp
 		return spec.ResponseFailWithFlags(spec.ParameterLess, "addr")
 	}
 
+	var passwordStr []byte
+	if _, ok := spec.IsDestroy(ctx); !ok {
+		fmt.Print("Please enter the password of redis server:")
+		var err error
+		passwordStr, err = gopass.GetPasswd()
+		if err != nil {
+			log.Errorf(ctx, "password is illegal, err: %s", err.Error())
+			return spec.ResponseFailWithFlags(spec.ParameterIllegal, "password", "****", err.Error())
+		}
+	}
+
 	cli := redis.NewClient(&redis.Options{
 		Addr:     addrStr,
-		Password: passwordStr,
+		Password: string(passwordStr),
 	})
 	_, err := cli.Ping(cli.Context()).Result()
 	if err != nil {
