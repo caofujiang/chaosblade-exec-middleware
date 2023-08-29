@@ -4,19 +4,12 @@ github.com/StackExchange/wmi v1.2.1 h1:VIkavFPXSjcnS+O8yTq7NI32k0R5Aj+v39y29VYDO
 github.com/StackExchange/wmi v1.2.1/go.mod h1:rcmrprowKIVzvc+NUiLncP2uuArMWLCbu9SBzvHz7e8=
 github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220816024939-bc8df83d7b9d h1:0xIrH2lJbraclvJT3pvTf3u2oCAL60cAqiv4qRpz4EI=
 github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220816024939-bc8df83d7b9d/go.mod h1:F7bn7fEU90QkQ3tnmaTx3LTKLEDqnwWODIYppRQ5hnY=
-github.com/caofujiang/chaosblade-exec-os v1.9.6 h1:tF8VoVeysSuhukVwQJyfqpL5ts2BS4vB+rBdNJkgTUM=
-github.com/caofujiang/chaosblade-exec-os v1.9.6/go.mod h1:UwW7PKD79/ixFpP5SU568xSIA0Z3QZyHAd0occELywE=
-github.com/caofujiang/chaosblade-spec-go v1.7.7 h1:pRShDIFNUVWIjKuSMZNRhJveKCKdH09yeYRukdJrstc=
-github.com/caofujiang/chaosblade-spec-go v1.7.7/go.mod h1:khF37h4B8tKfBlgqKGE/+2sWimvm+Mc1l3V8rY5rbOQ=
+github.com/caofujiang/chaosblade-exec-os v1.9.10 h1:LoKTVnYhqrRlfaCo5zfw/cMN1hWjia01J4LEIFS55FE=
+github.com/caofujiang/chaosblade-exec-os v1.9.10/go.mod h1:W75jRqnt+oOubS4ndq01i0+FeNtzlgu1C34nowUO9Yg=
+github.com/caofujiang/chaosblade-spec-go v1.7.9 h1:JDNP38gc4/tppbrmsdVXib8GkieQZiZ5gXTy6km/Cco=
+github.com/caofujiang/chaosblade-spec-go v1.7.9/go.mod h1:khF37h4B8tKfBlgqKGE/+2sWimvm+Mc1l3V8rY5rbOQ=
 github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cbYE=
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
-<<<<<<< HEAD
-=======
-github.com/chaosblade-io/chaosblade-exec-os v1.7.3 h1:UForEOq5Hd6rgFEaRuLqchrUVTe8glgxByuOkiGhQ6c=
-github.com/chaosblade-io/chaosblade-exec-os v1.7.3/go.mod h1:1pYkjSIsSwzcgUy5a2E0foLP3SoXrY45gLKl0oTBs74=
-github.com/chaosblade-io/chaosblade-spec-go v1.7.3 h1:OhFFBCV4iNwOdKA7BPjtdSM5cJZrtZry7JBUyWEc83g=
-github.com/chaosblade-io/chaosblade-spec-go v1.7.3/go.mod h1:khF37h4B8tKfBlgqKGE/+2sWimvm+Mc1l3V8rY5rbOQ=
->>>>>>> bd1efd958bded8702f694a000a4f04b580b7a95a
 github.com/cilium/ebpf v0.4.0/go.mod h1:4tRaxcgiL706VnOzHOdBlY8IEAIdxINsQBcU4xJJXRs=
 github.com/containerd/cgroups v1.0.2-0.20210605143700-23b51209bf7b h1:mrRq0rkLJnQOfalr7EwNn1ULsMoyGvD+8kN+hxeNRms=
 github.com/containerd/cgroups v1.0.2-0.20210605143700-23b51209bf7b/go.mod h1:0SJrPIenamHDcZhEcJMNBB85rHcUsw4f25ZfBiPYRkU=
@@ -37,11 +30,8 @@ github.com/go-ole/go-ole v1.2.5 h1:t4MGB5xEDZvXI+0rMjjsfBsD7yAgp/s9ZDkL1JndXwY=
 github.com/go-ole/go-ole v1.2.5/go.mod h1:pprOEPIfldk/42T2oK7lQ4v4JSDwmV0As9GaiUsvbm0=
 github.com/go-redis/redis/v8 v8.11.5 h1:AcZZR7igkdvfVmQTPnu9WE37LRrO/YrBH5zWyjDC0oI=
 github.com/go-redis/redis/v8 v8.11.5/go.mod h1:gREzHqY1hg6oD9ngVRbLStwAWKhA0FEgq8Jd4h5lpwo=
-<<<<<<< HEAD
 github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfCHuOE=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
-=======
->>>>>>> bd1efd958bded8702f694a000a4f04b580b7a95a
 github.com/godbus/dbus/v5 v5.0.3 h1:ZqHaoEF7TBzh4jzPmqVhE/5A1z9of6orkAe5uHoAeME=
 github.com/godbus/dbus/v5 v5.0.3/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/gogo/protobuf v1.3.2 h1:Ov1cvc58UF3b5XjBnZv7+opcTcQFZebYjWzi34vdm4Q=
@@ -68,13 +58,8 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-<<<<<<< HEAD
-github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=
-github.com/rogpeppe/go-internal v1.10.0/go.mod h1:UQnix2H7Ngw/k4C5ijL5+65zddjncjaFoBhdsK/akog=
-=======
 github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDNXVBh4M=
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
->>>>>>> bd1efd958bded8702f694a000a4f04b580b7a95a
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shirou/gopsutil v3.21.6+incompatible h1:mmZtAlWSd8U2HeRTjswbnDLPxqsEoK01NK+GZ1P+nEM=
 github.com/shirou/gopsutil v3.21.6+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
