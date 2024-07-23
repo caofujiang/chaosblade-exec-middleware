@@ -45,6 +45,7 @@ func NewRedisCommandSpec() spec.ExpModelCommandSpec {
 				NewCachePenetrateActionSpec(),
 				NewSentinelRestartActionSpec(),
 				NewSentinelStopActionSpec(),
+				NewCacheHotKeyActionSpec(),
 			},
 			ExpFlags: []spec.ExpFlagSpec{},
 		},
